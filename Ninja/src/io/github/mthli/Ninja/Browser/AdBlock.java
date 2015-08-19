@@ -2,19 +2,24 @@ package io.github.mthli.Ninja.Browser;
 
 import android.content.Context;
 import android.content.res.AssetManager;
-import io.github.mthli.Ninja.Database.RecordAction;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
+import io.github.mthli.Ninja.Database.RecordAction;
 
 public class AdBlock {
     private static final String FILE = "hosts.txt";
-    private static final Set<String> hosts = new HashSet<>();
-    private static final List<String> whitelist = new ArrayList<>();
+    private static final Set<String> hosts = new HashSet<String>();
+    private static final List<String> whitelist = new ArrayList<String>();
     private static final Locale locale = Locale.getDefault();
 
     private static void loadHosts(final Context context) {
