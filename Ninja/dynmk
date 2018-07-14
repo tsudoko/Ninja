@@ -1,0 +1,2 @@
+echo OFILES="$(du -a src | awk '/\.java$/{sub("java$", "class"); printf $2 " "}')"
+echo RES="$(du -a res | awk '{printf $2 " "}')"

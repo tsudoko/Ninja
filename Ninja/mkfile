@@ -1,0 +1,39 @@
+<|./dynmk
+
+platform=android-22
+android_jar=$ANDROID_HOME/platforms/$platform/android.jar
+PATH=$PATH:$ANDROID_HOME/build-tools/22.0.1
+# TODO: get this from AndroidManifest
+pkgpath=io/github/mthli/Ninja
+pkgname=io.github.mthli.Ninja
+classpath=$android_jar:libs/android-support-v4.jar
+R=tmp/$pkgpath/R.java
+OR=tmp/$pkgpath/R.class
+
+$R: AndroidManifest.xml $android_jar $RES
+	aapt package -f -m -J tmp -M AndroidManifest.xml -S res -I $android_jar
+
+classes.dex: $OR $OFILES
+	du -a src | awk '/\.class$/{ sub("src/", ""); print "mkdir -p tmp/$(dirname " $2 ") && cp src/'\''" $2 "'\'' tmp/$(dirname " $2 ")" }' | sh
+	dx --dex --output=$target tmp libs/*
+
+$pkgname.apk.unaligned: AndroidManifest.xml $android_jar classes.dex
+	aapt package -f -M AndroidManifest.xml -S res -I $android_jar -F $target
+	aapt add $target classes.dex
+
+$pkgname-debug.apk: $pkgname.apk.unaligned
+	zipalign -f 4 $prereq $target
+	jarsigner -keystore ~/.android/debug.keystore -storepass 'android' $target androiddebugkey
+
+%.class: %.java
+	javac -classpath $classpath \
+		-sourcepath 'src:tmp' \
+		-source 1.7 -target 1.7 \
+		$prereq
+
+debug:V: $pkgname-debug.apk
+
+clean:V:
+	rm -rf $pkgname.apk.unaligned $pkgname-debug.apk classes.dex tmp/*
+
+nyanko: classes.dex
