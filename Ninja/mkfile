@@ -38,5 +38,3 @@ debug:V: $pkgname-debug.apk
 
 clean:V:
 	rm -rf $pkgname.apk.unaligned $pkgname-debug.apk classes.dex gen/*
-
-nyanko: classes.dex
