@@ -7,15 +7,18 @@ PATH=$PATH:$ANDROID_HOME/build-tools/22.0.1
 pkgpath=io/github/mthli/Ninja
 pkgname=io.github.mthli.Ninja
 classpath=$android_jar:libs/android-support-v4.jar
-R=tmp/$pkgpath/R.java
-OR=tmp/$pkgpath/R.class
+R=gen/$pkgpath/R.java
+OR=gen/$pkgpath/R.class
 
-$R: AndroidManifest.xml $android_jar $RES
-	aapt package -f -m -J tmp -M AndroidManifest.xml -S res -I $android_jar
+gen:
+	mkdir gen
+
+$R: gen AndroidManifest.xml $android_jar $RES
+	aapt package -f -m -J gen -M AndroidManifest.xml -S res -I $android_jar
 
 classes.dex: $OR $OFILES
-	du -a src | awk '/\.class$/{ sub("src/", ""); print "mkdir -p tmp/$(dirname " $2 ") && cp src/'\''" $2 "'\'' tmp/$(dirname " $2 ")" }' | sh
-	dx --dex --output=$target tmp libs/*
+	du -a src | awk '/\.class$/{ sub("src/", ""); print "mkdir -p gen/$(dirname " $2 ") && cp src/'\''" $2 "'\'' gen/$(dirname " $2 ")" }' | sh
+	dx --dex --output=$target gen libs/*
 
 $pkgname.apk.unaligned: AndroidManifest.xml $android_jar classes.dex
 	aapt package -f -M AndroidManifest.xml -S res -I $android_jar -F $target
@@ -27,13 +30,13 @@ $pkgname-debug.apk: $pkgname.apk.unaligned
 
 %.class: %.java
 	javac -classpath $classpath \
-		-sourcepath 'src:tmp' \
+		-sourcepath 'src:gen' \
 		-source 1.7 -target 1.7 \
 		$prereq
 
 debug:V: $pkgname-debug.apk
 
 clean:V:
-	rm -rf $pkgname.apk.unaligned $pkgname-debug.apk classes.dex tmp/*
+	rm -rf $pkgname.apk.unaligned $pkgname-debug.apk classes.dex gen/*
 
 nyanko: classes.dex
