@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.net.MailTo;
+import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
 import android.os.Message;
@@ -83,20 +84,14 @@ public class NinjaWebViewClient extends WebViewClient {
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
-        if (url.startsWith(BrowserUnit.URL_SCHEME_MAIL_TO)) {
-            Intent intent = IntentUnit.getEmailIntent(MailTo.parse(url));
+        if (!URLUtil.isValidUrl(url)) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
+            // TODO: close tab?
             view.reload();
             return true;
-        } else if (url.startsWith(BrowserUnit.URL_SCHEME_INTENT)) {
-            Intent intent;
-            try {
-                intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
-                context.startActivity(intent);
-                return true;
-            } catch (Exception e) {} // When intent fail will crash
         }
-
         white = adBlock.isWhite(url);
         return super.shouldOverrideUrlLoading(view, url);
     }
