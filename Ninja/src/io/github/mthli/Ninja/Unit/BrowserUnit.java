@@ -19,6 +19,7 @@ import java.io.*;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 public class BrowserUnit {
     public static final int PROGRESS_MAX = 100;
@@ -66,32 +67,6 @@ public class BrowserUnit {
     public static final String URL_PREFIX_GOOGLE_PLUS = "plus.url.google.com/url?q=";
     public static final String URL_SUFFIX_GOOGLE_PLUS = "&rct";
 
-    public static boolean isURL(String url) {
-        if (url == null) {
-            return false;
-        }
-
-        url = url.toLowerCase(Locale.getDefault());
-        if (url.startsWith(URL_ABOUT_BLANK)
-                || url.startsWith(URL_SCHEME_MAIL_TO)
-                || url.startsWith(URL_SCHEME_FILE)) {
-            return true;
-        }
-
-        String regex = "^((ftp|http|https|intent)?://)"                      // support scheme
-                + "?(([0-9a-z_!~*'().&=+$%-]+: )?[0-9a-z_!~*'().&=+$%-]+@)?" // ftp的user@
-                + "(([0-9]{1,3}\\.){3}[0-9]{1,3}"                            // IP形式的URL -> 199.194.52.184
-                + "|"                                                        // 允许IP和DOMAIN（域名）
-                + "([0-9a-z_!~*'()-]+\\.)*"                                  // 域名 -> www.
-                + "([0-9a-z][0-9a-z-]{0,61})?[0-9a-z]\\."                    // 二级域名
-                + "[a-z]{2,6})"                                              // first level domain -> .com or .museum
-                + "(:[0-9]{1,4})?"                                           // 端口 -> :80
-                + "((/?)|"                                                   // a slash isn't required if there is no file name
-                + "(/[0-9a-z_!~*'().;?:@&=+$,%#-]+)+/?)$";
-        Pattern pattern = Pattern.compile(regex);
-        return pattern.matcher(url).matches();
-    }
-
     public static String queryWrapper(Context context, String query) {
         // Use prefix and suffix to process some special links
         String temp = query.toLowerCase(Locale.getDefault());
@@ -105,16 +80,13 @@ public class BrowserUnit {
             query = query.substring(start, end);
         }
 
-        if (isURL(query)) {
-            if (query.startsWith(URL_SCHEME_ABOUT) || query.startsWith(URL_SCHEME_MAIL_TO)) {
-                return query;
-            }
-
-            if (!query.contains("://")) {
-                query = URL_SCHEME_HTTP + query;
-            }
-
-            return query;
+	Matcher scheme = Pattern.compile("^[a-zA-Z][a-zA-Z0-9+\\-.]*?:").matcher(query);
+	if (!query.contains(" ") && (query.contains(".") || scheme.find() || query.contains(":"))) {
+		if (scheme.find()) {
+			return query;
+		} else {
+			return URL_SCHEME_HTTP + query;
+		}
         }
 
         try {
