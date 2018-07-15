@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -51,7 +52,7 @@ public class WhitelistActivity extends Activity {
                 String domain = editText.getText().toString().trim();
                 if (domain.isEmpty()) {
                     NinjaToast.show(WhitelistActivity.this, R.string.toast_input_empty);
-                } else if (!BrowserUnit.isURL(domain)) {
+                } else if (!URLUtil.isValidUrl(domain)) {
                     NinjaToast.show(WhitelistActivity.this, R.string.toast_invalid_domain);
                 } else {
                     RecordAction action = new RecordAction(WhitelistActivity.this);

@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.URLUtil;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -78,7 +79,7 @@ public class SearchEngineListPreference extends ListPreference {
                 if (domain.isEmpty()) {
                     NinjaToast.show(getContext(), R.string.toast_input_empty);
                     return true;
-                } else if (!BrowserUnit.isURL(domain)) {
+                } else if (!URLUtil.isValidUrl(domain)) {
                     NinjaToast.show(getContext(), R.string.toast_invalid_domain);
                     return true;
                 } else {
