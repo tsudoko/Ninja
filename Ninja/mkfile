@@ -21,7 +21,7 @@ classes.dex: $OR $OFILES
 	dx --dex --output=$target gen libs/*
 
 $pkgname.apk.unaligned: AndroidManifest.xml $android_jar classes.dex
-	aapt package -f -M AndroidManifest.xml -S res -I $android_jar -F $target
+	aapt package -f -M AndroidManifest.xml -A assets -S res -I $android_jar -F $target
 	aapt add $target classes.dex
 
 $pkgname-debug.apk: $pkgname.apk.unaligned
